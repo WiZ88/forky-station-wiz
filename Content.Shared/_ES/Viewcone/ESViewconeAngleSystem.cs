@@ -77,4 +77,15 @@ public sealed class ESViewconeAngleSystem : EntitySystem
         // clamps to 0, 360 since this is additive and could easily go over with stacking equipment items and shit
         return Math.Clamp(ent.Comp.BaseConeAngle + ev.GetAngleModifier(), 0f, 360f);
     }
+
+    public float GetModifiedConeIgnoreRadius(Entity<ESViewconeComponent?> ent)
+    {
+        if (!Resolve(ent, ref ent.Comp))
+            return 0f;
+
+        if (HasComp<ViewconeStorageBlindComponent>(ent))
+            return ent.Comp.ConeIgnoreRadiusBlind;
+
+        return ent.Comp.ConeIgnoreRadius;
+    }
 }
