@@ -23,7 +23,11 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
     private void OnStorageClosed(Entity<EntityStorageComponent> ent, ref StorageAfterCloseEvent args)
     {
         if (_net.IsClient)
+        {
+            RaiseLocalEvent(ent, new EntityEnteredStorageEvent());
             return;
+        }
+
 
         if (ent.Comp.Contents is not { } contents)
             return;
@@ -39,7 +43,10 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
     private void OnStorageOpened(Entity<EntityStorageComponent> ent, ref StorageAfterOpenEvent args)
     {
         if (_net.IsClient)
+        {
+            RaiseLocalEvent(ent, new EntityExitedStorageEvent());
             return;
+        }
 
         if (ent.Comp.Contents is not { } contents)
             return;
@@ -54,7 +61,11 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
     private void OnInserted(Entity<EntityStorageComponent> ent, ref EntInsertedIntoContainerMessage args)
     {
         if (_net.IsClient)
+        {
+            RaiseLocalEvent(args.Entity, new EntityEnteredStorageEvent());
             return;
+        }
+
 
         if (ent.Comp.Contents is not { } contents || args.Container.ID != contents.ID)
             return;
@@ -67,7 +78,10 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
     private void OnRemoved(Entity<EntityStorageComponent> ent, ref EntRemovedFromContainerMessage args)
     {
         if (_net.IsClient)
+        {
+            RaiseLocalEvent(args.Entity, new EntityExitedStorageEvent());
             return;
+        }
 
         if (ent.Comp.Contents is not { } contents || args.Container.ID != contents.ID)
             return;

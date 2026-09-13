@@ -57,6 +57,7 @@ public sealed partial class ESViewconeComponent : Component
 
     // Clientside, used for lerping view angle
     // and keeping it consistent across all overlays
+    public bool IsBlind = false; // Funky
     public Angle ViewAngle;
     public Angle? DesiredViewAngle = null;
     public Angle LastMouseRotationAngle;

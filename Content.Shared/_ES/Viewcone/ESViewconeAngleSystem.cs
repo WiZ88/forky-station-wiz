@@ -74,8 +74,12 @@ public sealed class ESViewconeAngleSystem : EntitySystem
         var ev = new ESViewconeGetAngleModifierEvent();
         RaiseLocalEvent(ent, ref ev, true);
 
+        if (ent.Comp.IsBlind)
+            return -360;
+
         // clamps to 0, 360 since this is additive and could easily go over with stacking equipment items and shit
-        return Math.Clamp(ent.Comp.BaseConeAngle + ev.GetAngleModifier(), 0f, 360f);
+        // return Math.Clamp(ent.Comp.BaseConeAngle + ev.GetAngleModifier(), 0f, 360f);
+        return ent.Comp.BaseConeAngle;
     }
 
     public float GetModifiedConeIgnoreRadius(Entity<ESViewconeComponent?> ent)
@@ -83,7 +87,7 @@ public sealed class ESViewconeAngleSystem : EntitySystem
         if (!Resolve(ent, ref ent.Comp))
             return 0f;
 
-        if (HasComp<ViewconeStorageBlindComponent>(ent))
+        if (ent.Comp.IsBlind)
             return ent.Comp.ConeIgnoreRadiusBlind;
 
         return ent.Comp.ConeIgnoreRadius;
