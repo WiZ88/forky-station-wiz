@@ -19,7 +19,7 @@ public sealed partial class ESViewconeModifierComponent : Component
 ///     Modifies their viewcone angle additively.
 /// </summary>
 [ByRefEvent]
-public record ESViewconeGetAngleModifierEvent() : IInventoryRelayEvent
+public record ESViewconeGetAngleModifierEvent : IInventoryRelayEvent
 {
     public SlotFlags TargetSlots => SlotFlags.HEAD | SlotFlags.EYES | SlotFlags.MASK;
 

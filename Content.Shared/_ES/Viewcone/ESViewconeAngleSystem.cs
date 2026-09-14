@@ -1,5 +1,4 @@
 using Content.Shared._ES.Viewcone.Components;
-using Content.Shared._Funkystation.Viewcone;
 using Content.Shared.Disposal.Unit;
 using Content.Shared.Examine;
 using Content.Shared.Inventory;
@@ -94,13 +93,14 @@ public sealed class ESViewconeAngleSystem : EntitySystem
         // Funky start
         var viewcone = ent.Comp;
 
-        var ev = new ESViewconeGetAngleModifierEvent();
-        RaiseLocalEvent(ent, ref ev, true);
-
         if (ent.Comp.IsBlind)
             viewcone.DesiredConeAngle = viewcone.BaseConeAngleBlind;
         else
+        {
+            var ev = new ESViewconeGetAngleModifierEvent();
+            RaiseLocalEvent(ent, ref ev, true);
             viewcone.DesiredConeAngle = viewcone.BaseConeAngle + ev.GetAngleModifier();
+        }
 
         // CurrentConeAngle gets lerped above in the FrameUpdate method
         return ent.Comp.CurrentConeAngle;

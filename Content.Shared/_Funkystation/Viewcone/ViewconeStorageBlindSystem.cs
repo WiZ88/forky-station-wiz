@@ -2,7 +2,6 @@
 using Content.Shared.Storage.Components;
 using Robust.Shared.Containers;
 using Robust.Shared.Network;
-using Robust.Shared.Timing;
 
 namespace Content.Shared._Funkystation.Viewcone;
 
@@ -18,7 +17,7 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
         base.Initialize();
 
         SubscribeLocalEvent<EntityStorageComponent, StorageAfterCloseEvent>(OnStorageClosed);
-        SubscribeLocalEvent<EntityStorageComponent, StorageAfterOpenEvent>(OnStorageOpened);
+        SubscribeLocalEvent<EntityStorageComponent, StorageBeforeOpenEvent>(OnStorageOpened);
         SubscribeLocalEvent<EntityStorageComponent, EntInsertedIntoContainerMessage>(OnInserted);
         SubscribeLocalEvent<EntityStorageComponent, EntRemovedFromContainerMessage>(OnRemoved);
     }
@@ -30,7 +29,7 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
     }
 
     // unmark
-    private void OnStorageOpened(Entity<EntityStorageComponent> ent, ref StorageAfterOpenEvent _)
+    private void OnStorageOpened(Entity<EntityStorageComponent> ent, ref StorageBeforeOpenEvent _)
     {
         UnmarkBlindByContainer(ent);
     }
