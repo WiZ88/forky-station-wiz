@@ -47,7 +47,7 @@ public sealed partial class ESViewconeComponent : Component
     public float ConeFeather = 10f;
 
     [DataField, AutoNetworkedField]
-    public float ConeIgnoreRadius = 0.5f;
+    public float ConeIgnoreRadius = 1f;
 
     // Funky, specifies cone radius when blind (e.g. inside a container)
     [DataField, AutoNetworkedField]
@@ -58,13 +58,19 @@ public sealed partial class ESViewconeComponent : Component
 
     // Clientside, used for lerping view angle
     // and keeping it consistent across all overlays
-    public bool IsBlind = false; // Funky
-    public float CurrentConeAngle = 250f;
-    public float DesiredConeAngle = 250f;
-    public float LastConeAngleModifierSeen = 0f;
     public Angle ViewAngle;
     public Angle? DesiredViewAngle = null;
     public Angle LastMouseRotationAngle;
     public Vector2 LastWorldPos;
     public Angle LastWorldRotationAngle;
+
+    // Funky start
+    public bool IsBlind = false;
+
+    // Keeping this negative ensures no items are shown
+    // when blinded
+    public readonly float BaseConeAngleBlind = -10f;
+    public float CurrentConeAngle = 250f;
+    public float DesiredConeAngle = 250f;
+    // Funky end
 }
