@@ -46,7 +46,7 @@ public sealed partial class ESViewconeComponent : Component
     public float ConeFeather = 10f;
 
     [DataField, AutoNetworkedField]
-    public float ConeIgnoreRadius = 1f;
+    public float ConeIgnoreRadius = 0.5f;
 
     // Funky, specifies cone radius when blind (e.g. inside a container)
     [DataField, AutoNetworkedField]
@@ -67,7 +67,7 @@ public sealed partial class ESViewconeComponent : Component
     public bool IsBlind = false;
 
     // Keeping this negative ensures no items are shown
-    // when blinded
+    // when blind
     public readonly float BaseConeAngleBlind = -10f;
     public float CurrentConeAngle = 250f;
     public float DesiredConeAngle = 250f;

@@ -3,7 +3,6 @@ using Content.Shared.Disposal.Unit;
 using Content.Shared.Examine;
 using Content.Shared.Inventory;
 using Content.Shared.StatusEffectNew;
-using Robust.Shared.Network;
 
 namespace Content.Shared._ES.Viewcone;
 
@@ -12,11 +11,6 @@ namespace Content.Shared._ES.Viewcone;
 /// </summary>
 public sealed class ESViewconeAngleSystem : EntitySystem
 {
-    [Dependency] private INetManager _net = default!;
-    [Dependency] private InventorySystem _inv = default!;
-
-    private const float LerpHalfLife = 0.1f;
-
     public override void Initialize()
     {
         base.Initialize();
@@ -27,28 +21,6 @@ public sealed class ESViewconeAngleSystem : EntitySystem
         SubscribeLocalEvent<ESViewconeModifierComponent, StatusEffectRelayedEvent<ESViewconeGetAngleModifierEvent>>(OnAngleStatusEffectModify);
 
         SubscribeLocalEvent<BeingDisposedComponent, ESViewconeGetAngleModifierEvent>(OnBeingDisposedAngle);
-    }
-
-    public override void FrameUpdate(float frameTime)
-    {
-        base.FrameUpdate(frameTime);
-
-        // Funky start
-        // lerp from CurrentConeAngle to DesiredConeAngle
-        if (!_net.IsClient)
-            return;
-
-        var enumerator = AllEntityQuery<ESViewconeComponent>();
-        while (enumerator.MoveNext(out var _, out var viewcone))
-        {
-            if (viewcone.DesiredConeAngle.Equals(viewcone.CurrentConeAngle))
-                continue;
-
-            // framerate-independent lerp
-            // https://twitter.com/FreyaHolmer/status/1757836988495847568
-            viewcone.CurrentConeAngle = MathHelper.Lerp(viewcone.CurrentConeAngle, viewcone.DesiredConeAngle, 1f - MathF.Pow(2f, -(frameTime / LerpHalfLife)));
-        }
-        // Funky end
     }
 
     private void OnExamined(Entity<ESViewconeModifierComponent> ent, ref ExaminedEvent args)
@@ -102,7 +74,7 @@ public sealed class ESViewconeAngleSystem : EntitySystem
             viewcone.DesiredConeAngle = viewcone.BaseConeAngle + ev.GetAngleModifier();
         }
 
-        // CurrentConeAngle gets lerped above in the FrameUpdate method
+        // CurrentAngle gets lerped each frame in ViewconeBlindSystem
         return ent.Comp.CurrentConeAngle;
         // Funky end
     }
