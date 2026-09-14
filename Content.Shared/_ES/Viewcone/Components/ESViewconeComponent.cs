@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using Robust.Shared.GameStates;
 
 namespace Content.Shared._ES.Viewcone.Components;
