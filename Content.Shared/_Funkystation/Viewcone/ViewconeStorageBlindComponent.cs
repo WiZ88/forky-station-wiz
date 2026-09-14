@@ -10,3 +10,5 @@ public sealed partial class ViewconeStorageBlindComponent : Component;
 public readonly record struct EntityEnteredStorageEvent();
 
 public readonly record struct EntityExitedStorageEvent();
+
+public readonly record struct ViewconeAngleEvent(float Modifier);

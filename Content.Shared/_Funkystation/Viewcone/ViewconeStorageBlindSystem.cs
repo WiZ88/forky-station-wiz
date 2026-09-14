@@ -28,14 +28,15 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
             return;
         }
 
-
         if (ent.Comp.Contents is not { } contents)
             return;
 
         foreach (var contained in contents.ContainedEntities)
         {
-            if (HasComp<ESViewconeComponent>(contained)) // so it doesn't keep trying to apply this component to every item LOL
-                EnsureComp<ViewconeStorageBlindComponent>(contained);
+            if (!TryComp<ESViewconeComponent>(contained, out var comp))
+                continue;
+
+            EnsureComp<ViewconeStorageBlindComponent>(contained);
         }
     }
 
@@ -65,7 +66,6 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
             RaiseLocalEvent(args.Entity, new EntityEnteredStorageEvent());
             return;
         }
-
 
         if (ent.Comp.Contents is not { } contents || args.Container.ID != contents.ID)
             return;

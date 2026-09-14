@@ -17,6 +17,14 @@ public sealed partial class ViewConeBlindSystem : EntitySystem
         SubscribeLocalEvent<EntityStorageComponent, EntityExitedStorageEvent>(OnRemovedFromContainer);
     }
 
+    [SubscribeLocalEvent]
+    private void OnViewconeAngleEvent(Entity<ESViewconeComponent> ent, ref ViewconeAngleEvent args)
+    {
+        var modifier = args.Modifier;
+
+        ent.Comp.LastConeAngleModifierSeen = modifier;
+    }
+
     private void OnInsertedIntoContainer(Entity<EntityStorageComponent> ent, ref EntityEnteredStorageEvent args)
     {
         if (ent.Comp.Contents is not { } contents)
@@ -25,7 +33,7 @@ public sealed partial class ViewConeBlindSystem : EntitySystem
         foreach (var contained in contents.ContainedEntities)
         {
             if (contained != _player.LocalEntity)
-                return;
+                continue;
 
             if (!TryComp<ESViewconeComponent>(contained, out var comp))
                 return;

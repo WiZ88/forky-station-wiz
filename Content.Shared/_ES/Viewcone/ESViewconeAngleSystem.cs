@@ -4,6 +4,7 @@ using Content.Shared.Disposal.Unit;
 using Content.Shared.Examine;
 using Content.Shared.Inventory;
 using Content.Shared.StatusEffectNew;
+using Robust.Shared.Network;
 
 namespace Content.Shared._ES.Viewcone;
 
@@ -12,6 +13,10 @@ namespace Content.Shared._ES.Viewcone;
 /// </summary>
 public sealed class ESViewconeAngleSystem : EntitySystem
 {
+    [Dependency] private INetManager _net = default!;
+    [Dependency] private InventorySystem _inv = default!;
+
+    private const float LerpHalfLife = 0.1f;
     public override void Initialize()
     {
         base.Initialize();
@@ -23,6 +28,25 @@ public sealed class ESViewconeAngleSystem : EntitySystem
 
         SubscribeLocalEvent<ViewconeStorageBlindComponent, ESViewconeGetAngleModifierEvent>(OnConcealedAngle); // Funky
         SubscribeLocalEvent<BeingDisposedComponent, ESViewconeGetAngleModifierEvent>(OnBeingDisposedAngle);
+    }
+
+    public override void FrameUpdate(float frameTime)
+    {
+        base.FrameUpdate(frameTime);
+
+        if (!_net.IsClient)
+            return;
+
+        var enumerator = AllEntityQuery<ESViewconeComponent>();
+        while (enumerator.MoveNext(out var ent, out var viewcone))
+        {
+            if (viewcone.DesiredConeAngle.Equals(viewcone.CurrentConeAngle))
+                return;
+
+            viewcone.CurrentConeAngle = MathHelper.Lerp(viewcone.CurrentConeAngle,
+                viewcone.DesiredConeAngle,
+                1f - MathF.Pow(2f, -(frameTime / 0.01f)));
+        }
     }
 
     private void OnExamined(Entity<ESViewconeModifierComponent> ent, ref ExaminedEvent args)
@@ -37,11 +61,23 @@ public sealed class ESViewconeAngleSystem : EntitySystem
 
     private void OnAngleModify(Entity<ESViewconeModifierComponent> ent, ref ESViewconeGetAngleModifierEvent args)
     {
+        if (_net.IsClient && args.Source is not null)
+        {
+            var ev = new ViewconeAngleEvent(ent.Comp.AngleModifier);
+            RaiseLocalEvent(args.Source.Value, ev, true);
+            return;
+        }
         args.ModifyAngle(ent.Comp.AngleModifier);
     }
 
     private void OnAngleInventoryModify(Entity<ESViewconeModifierComponent> ent, ref InventoryRelayedEvent<ESViewconeGetAngleModifierEvent> args)
     {
+        if (_net.IsClient && args.Args.Source is not null)
+        {
+            var ev = new ViewconeAngleEvent(ent.Comp.AngleModifier);
+            RaiseLocalEvent(args.Args.Source.Value, ev, true);
+            return;
+        }
         args.Args.ModifyAngle(ent.Comp.AngleModifier);
     }
 
@@ -71,15 +107,17 @@ public sealed class ESViewconeAngleSystem : EntitySystem
         if (!Resolve(ent, ref ent.Comp))
             return 0f;
 
-        var ev = new ESViewconeGetAngleModifierEvent();
+        ent.Comp.LastConeAngleModifierSeen = 0f;
+
+        var ev = new ESViewconeGetAngleModifierEvent(ent.Owner);
         RaiseLocalEvent(ent, ref ev, true);
 
         if (ent.Comp.IsBlind)
-            return -360;
+            ent.Comp.DesiredConeAngle = -10f;
+        else
+            ent.Comp.DesiredConeAngle = ent.Comp.BaseConeAngle + ent.Comp.LastConeAngleModifierSeen;
 
-        // clamps to 0, 360 since this is additive and could easily go over with stacking equipment items and shit
-        // return Math.Clamp(ent.Comp.BaseConeAngle + ev.GetAngleModifier(), 0f, 360f);
-        return ent.Comp.BaseConeAngle;
+        return ent.Comp.CurrentConeAngle;
     }
 
     public float GetModifiedConeIgnoreRadius(Entity<ESViewconeComponent?> ent)

@@ -25,6 +25,13 @@ public record ESViewconeGetAngleModifierEvent : IInventoryRelayEvent
 
     private float? _angleModifier;
 
+    public EntityUid? Source;
+
+    public ESViewconeGetAngleModifierEvent(EntityUid? source)
+    {
+        Source = source;
+    }
+
     public float GetAngleModifier()
     {
         return _angleModifier ?? 0f;

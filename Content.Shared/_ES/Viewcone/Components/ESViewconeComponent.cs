@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Robust.Shared.GameStates;
 
 namespace Content.Shared._ES.Viewcone.Components;
@@ -58,6 +59,9 @@ public sealed partial class ESViewconeComponent : Component
     // Clientside, used for lerping view angle
     // and keeping it consistent across all overlays
     public bool IsBlind = false; // Funky
+    public float CurrentConeAngle = 250f;
+    public float DesiredConeAngle = 250f;
+    public float LastConeAngleModifierSeen = 0f;
     public Angle ViewAngle;
     public Angle? DesiredViewAngle = null;
     public Angle LastMouseRotationAngle;
