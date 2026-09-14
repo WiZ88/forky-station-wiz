@@ -20,21 +20,15 @@ public sealed partial class ViewconeBlindSystem : EntitySystem
     /// The server state gets reconciled with <see cref="OnViewconeStorageClosedAfterEvent"/>.
     /// </summary>
     [SubscribeLocalEvent]
-    private void OnViewconeStorageClosedEvent(Entity<EntityStorageComponent> ent, ref ViewconeStorageClosedEvent args)
+    private void OnViewconeStorageClosedEvent(Entity<ViewconeBlindnessComponent> ent, ref ViewconeStorageClosedEvent args)
     {
-        if (ent.Comp.Contents is not { } contents)
+        if (ent != _player.LocalEntity)
             return;
 
-        foreach (var contained in contents.ContainedEntities)
-        {
-            if (contained != _player.LocalEntity)
-                continue;
+        if (!TryComp<ESViewconeComponent>(ent, out var comp))
+            return;
 
-            if (!TryComp<ESViewconeComponent>(contained, out var comp))
-                return;
-
-            comp.IsBlind = true;
-        }
+        comp.IsBlind = true;
     }
 
     /// <summary>
@@ -43,20 +37,12 @@ public sealed partial class ViewconeBlindSystem : EntitySystem
     /// The server state gets reconciled with <see cref="OnViewconeStorageOpenedAfterEvent"/>.
     /// </summary>
     [SubscribeLocalEvent]
-    private void OnViewconeStorageOpenedEvent(Entity<EntityStorageComponent> ent, ref ViewconeStorageOpenedEvent args)
+    private void OnViewconeStorageOpenedEvent(Entity<ViewconeBlindnessComponent> ent, ref ViewconeStorageOpenedEvent args)
     {
-        if (ent.Comp.Contents is not { } contents)
+        if (ent != _player.LocalEntity)
             return;
 
-        var isEntityInsideStorage = contents.ContainedEntities.Any(contained => contained == _player.LocalEntity);
-
-        // If the player entity is inside the storage
-        // it means the state has been predicted correctly
-        if (isEntityInsideStorage)
-            return;
-
-        // Predicted incorrectly, revert
-        if (!TryComp<ESViewconeComponent>(_player.LocalEntity, out var comp))
+        if (!TryComp<ESViewconeComponent>(ent, out var comp))
             return;
 
         comp.IsBlind = false;
@@ -65,7 +51,7 @@ public sealed partial class ViewconeBlindSystem : EntitySystem
     [SubscribeLocalEvent]
     private void OnAfterState(Entity<ViewconeBlindnessComponent> ent, ref AfterAutoHandleStateEvent args)
     {
-        if (!TryComp<ESViewconeComponent>(_player.LocalEntity, out var comp))
+        if (!TryComp<ESViewconeComponent>(ent, out var comp))
             return;
 
         // Reconcile with the server state

@@ -52,13 +52,6 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
     /// </summary>
     private void MarkBlindByContainer(Entity<EntityStorageComponent> ent)
     {
-        // Client side prediction
-        RaiseLocalEvent(ent, new ViewconeStorageClosedEvent());
-
-        // We prevent the client from changing the server-autoritative component
-        if (_net.IsClient)
-            return;
-
         if (ent.Comp.Contents is not { } contents)
             return;
 
@@ -67,6 +60,13 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
             // Ignore all entities that do not posses a ViewconeBlindnessComponent
             if (!TryComp<ViewconeBlindnessComponent>(contained, out var comp))
                 continue;
+
+            // Client side prediction
+            RaiseLocalEvent(contained, new ViewconeStorageClosedEvent());
+
+            // We prevent the client from changing the server-autoritative component
+            if (_net.IsClient)
+                return;
 
             comp.IsBlind = true;
             comp.Reason &= ViewconeBlindnessReason.Storage;
@@ -84,13 +84,6 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
     /// </summary>
     private void UnmarkBlindByContainer(Entity<EntityStorageComponent> ent)
     {
-        // Client side prediction
-        // see above
-        RaiseLocalEvent(ent, new ViewconeStorageOpenedEvent());
-
-        if (!_net.IsClient)
-            return;
-
         if (ent.Comp.Contents is not { } contents)
             return;
 
@@ -99,8 +92,14 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
             if (!TryComp<ViewconeBlindnessComponent>(contained, out var comp))
                 continue;
 
+            // Client side prediction see above
+            RaiseLocalEvent(contained, new ViewconeStorageOpenedEvent());
+
+            if (_net.IsClient)
+                continue;
+
             comp.IsBlind = false;
-            comp.Reason |= ViewconeBlindnessReason.Storage;
+            comp.Reason &= ViewconeBlindnessReason.Storage;
 
             Dirty(contained, comp);
         }
