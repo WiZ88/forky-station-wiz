@@ -55,6 +55,10 @@ namespace Content.Client.Input
             // ES START
             common.AddFunction(ContentKeyFunctions.ESHoldToFace);
             // ES END
+          
+            // funky. lets you activate a held item without cancelling placement first.
+            var editor = contexts.GetContext("editor");
+            editor.AddFunction(ContentKeyFunctions.UseItemInHand);
 
             var human = contexts.GetContext("human");
             human.AddFunction(EngineKeyFunctions.MoveUp);
