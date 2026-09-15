@@ -73,8 +73,6 @@ public sealed partial class ViewconeBlindSystem : EntitySystem
             return;
 
         // Reconcile with the server state
-        // ESViewconeComponent is client predicted
-        // ViewconeBlindnessComponent is server authoritative
         comp.IsBlind = ent.Comp.IsBlind;
     }
 }

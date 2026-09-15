@@ -64,16 +64,12 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
             // Client side prediction
             RaiseLocalEvent(contained, new ViewconeStorageClosedEvent());
 
-            // We prevent the client from changing the server-autoritative component
-            if (_net.IsClient)
-                return;
-
             comp.IsBlind = true;
             comp.Reason &= ViewconeBlindnessReason.Storage;
 
-            // Dirty the component so the event `AfterAutoHandleStateEvent`
-            // gets called once both server and client are reconciled
-            // it then gets handled in ViewconeBlindSystem.cs
+            // Dirty the component so AfterAutoHandleStateEvent is raised
+            // when its state is applied on the client.
+            // See ViewconeBlindSystem
             Dirty(contained, comp);
         }
     }
@@ -94,9 +90,6 @@ public sealed partial class ViewconeStorageBlindSystem : EntitySystem
 
             // Client side prediction see above
             RaiseLocalEvent(contained, new ViewconeStorageOpenedEvent());
-
-            if (_net.IsClient)
-                continue;
 
             comp.IsBlind = false;
             comp.Reason &= ViewconeBlindnessReason.Storage;
