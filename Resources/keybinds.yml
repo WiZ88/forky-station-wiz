@@ -3,7 +3,7 @@ binds:
 # ES START
 - function: ESHoldToFace
   type: State
-  key: Shift
+  key: Space
 # ES END
 - function: UIClick
   type: State
