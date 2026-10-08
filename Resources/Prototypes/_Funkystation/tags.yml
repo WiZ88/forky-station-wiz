@@ -68,6 +68,9 @@
   id: CardboardboxLarge
 
 - type: Tag
+  id: SurveillanceDevices
+
+- type: Tag
   id: LaundryBag
 
 - type: Tag
@@ -75,3 +78,12 @@
 
 - type: Tag
   id: PASpeakerElectronics
+
+- type: Tag
+  id: ConstructionChalk
+
+- type: Tag
+  id: Pouch
+  
+- type: Tag # item is invisible to a patdown search
+  id: PatdownConcealed

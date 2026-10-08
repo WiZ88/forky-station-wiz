@@ -1,4 +1,5 @@
 using Content.Shared._ES.Viewcone.Components;
+using Content.Shared.Clothing.Components; // Funky
 using Content.Shared.Disposal.Unit;
 using Content.Shared.Examine;
 using Content.Shared.Inventory;
@@ -40,6 +41,14 @@ public sealed class ESViewconeAngleSystem : EntitySystem
 
     private void OnAngleInventoryModify(Entity<ESViewconeModifierComponent> ent, ref InventoryRelayedEvent<ESViewconeGetAngleModifierEvent> args)
     {
+        // Funky: take into account toggled masks
+        if (TryComp<MaskComponent>(ent, out var comp))
+        {
+            if (comp.IsToggled)
+                return;
+        }
+        // Funky end
+
         args.Args.ModifyAngle(ent.Comp.AngleModifier);
     }
 
